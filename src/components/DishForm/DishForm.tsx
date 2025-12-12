@@ -37,9 +37,6 @@ const DishForm: React.FC<Props> = ({addDish}) => {
         }
     };
 
-    // onInput - живой ввод (каждый символ) - (сразу)
-    // onChange - изменение значений форм (сразу)
-    // onBlur
     return (
         <div>
             <h4>Dish form</h4>
