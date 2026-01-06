@@ -2,7 +2,7 @@ import type {CartDish} from "../../../types";
 
 interface Props {
     cartDish: CartDish;
-    onDeleteDish: (id: string) => void;
+    onDeleteDish?: (id: string) => void;
 }
 
 const CartItem: React.FC<Props> = ({cartDish, onDeleteDish}) => {
@@ -14,9 +14,9 @@ const CartItem: React.FC<Props> = ({cartDish, onDeleteDish}) => {
                 <div className="col-3 text-right">
                     {cartDish.count * cartDish.dish.price} KGS
                 </div>
-                <div className="col-2">
+                {onDeleteDish && <div className="col-2">
                     <button className="btn" onClick={() => onDeleteDish(cartDish.dish.id)}>x</button>
-                </div>
+                </div>}
             </div>
         </div>
     );

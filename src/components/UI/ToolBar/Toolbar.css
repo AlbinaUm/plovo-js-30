@@ -1,0 +1,14 @@
+.toolbar-items {
+    display: flex;
+    justify-content: space-between;
+    list-style-type: none;
+}
+
+.toolbar-items a {
+    color: #ccc;
+    text-decoration: none;
+}
+
+.toolbar-items .active{
+    color: white;
+}
