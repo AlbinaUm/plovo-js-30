@@ -7,6 +7,7 @@ import NewDish from "./containers/NewDish/NewDish.tsx";
 import {Routes, Route} from "react-router-dom";
 import Checkout from "./containers/Checkout/Checkout.tsx";
 import Order from "./containers/Order/Order.tsx";
+import OrdersData from "./containers/OrdersData/OrdersData.tsx";
 
 const App = () => {
     const [cart, setCart] = useState<CartDish[]>([]);
@@ -78,13 +79,16 @@ const App = () => {
                       />
                   )}/>
 
+
                   <Route path='/new-dish' element={(
                       <NewDish addDish={addDish}/>
                   )}/>
 
                   <Route path='/checkout' element={(<Checkout cartDishes={cart}/>)}>
-                      <Route path='continue' element={(<Order/>)}/>
+                      <Route path='continue' element={(<Order cartDishes={cart} clearCart={clearCart}/>)}/>
                   </Route>
+
+                  <Route path='/admin/order-data' element={(<OrdersData />)}/>
 
 
                   {/*<Route path='/checkout/continue' element={(<p>checkout/continue</p>)}/>*/}
