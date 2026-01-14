@@ -2,15 +2,23 @@ interface IDish {
     id: string;
     name: string;
     description: string;
+    category: string;
     image: string;
     price: number;
 }
 
-interface DishMutation {
-    name: string;
-    description: string;
-    image: string;
-    price: number;
+// interface DishMutation {
+//     name: string;
+//     description: string;
+//     category: string;
+//     image: string;
+//     price: number;
+// }
+
+export type DishMutation = Omit<IDish, 'id'>;
+
+export interface IDishAPI {
+    [key: string]: DishMutation;
 }
 
 export interface CartDish {

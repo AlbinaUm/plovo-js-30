@@ -24,7 +24,6 @@ const OrdersData = () => {
                 });
 
                 setOrders(ordersArray);
-                console.log(ordersArray);
             }
 
         } finally {
@@ -41,11 +40,28 @@ const OrdersData = () => {
             {loading && <Spinner/>}
             {orders.length > 0  &&
                 <>
-                    {orders.map(order => (
-                        <p key={order.id}>
-                            {order.customer.name}
-                        </p>
-                    ))}
+                    {orders.map(order => {
+                        const dishes = order.dishes;
+                        const totalPrice = dishes.reduce((acc, dish) => {
+                            acc += dish.count * dish.dish.price;
+                            return acc;
+                        }, 0);
+
+                        return (
+                            <div className="card mb-4 p-2" key={order.id}>
+                                <h5>Order</h5>
+                                <ul>
+                                    {dishes.map(dish => (
+                                        <li key={dish.dish.name}>
+                                            {dish.dish.name} x{dish.count} = {dish.count * dish.dish.price} KGS
+                                        </li>
+                                    ))}
+                                </ul>
+                                <p><strong>Customer:</strong>{order.customer.name}</p>
+                                <p><strong>Total: </strong>{totalPrice} KGS</p>
+                            </div>
+                        );
+                    })}
                 </>
             }
         </div>

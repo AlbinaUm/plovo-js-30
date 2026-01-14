@@ -1,28 +1,33 @@
-import {toast} from "react-toastify";
 import type {DishMutation, IDish} from "../../types";
 import {useForm} from "react-hook-form";
+import {DISH_CATEGORY} from "../../globalConstants.ts";
 
 interface Props {
-    addDish: (newDish: IDish) => void;
+    onSubmitDish: (newDish: IDish) => void;
+    isLoading?: boolean;
+    isEdit?: boolean;
+    defaultDish?: DishMutation | null;
 }
 
-const DishForm: React.FC<Props> = ({addDish}) => {
+const DishForm: React.FC<Props> = ({onSubmitDish, isEdit=false, isLoading=false, defaultDish = null}) => {
+    const defaultValues = defaultDish ? defaultDish : {
+        name: '',
+        description: '',
+        category: '',
+        image: '',
+        price: 0,
+    };
+
     const {register, handleSubmit, reset, formState: {errors}} = useForm<DishMutation>({
-        defaultValues: {
-            name: '',
-            description: '',
-            image: '',
-            price: 0,
-        }
+        defaultValues
     });
 
     const onSubmit = (data: DishMutation) => {
-        addDish({
+        onSubmitDish({
             ...data,
             price: Number(data.price),
             id: String(new Date().toISOString()),
         });
-        toast.success('Dish created successfully');
         reset();
     };
 
@@ -30,6 +35,29 @@ const DishForm: React.FC<Props> = ({addDish}) => {
         <div>
             <h4>Dish form</h4>
             <form onSubmit={handleSubmit(onSubmit)}>
+
+                <div className="form-group mb-2">
+                    <label htmlFor="name">Category</label>
+                    <select
+                        {...register('category', {
+                            required: 'Category is required',
+                        })}
+                        name="category"
+                        id="category"
+                        disabled={isLoading}
+                        className="form-control"
+                    >
+                        <option value="" disabled>Select category</option>
+                        {DISH_CATEGORY.map(category => (
+                            <option key={category.value} value={category.value}>{category.label}</option>
+                        ))}
+                    </select>
+
+                    {errors.name && (
+                        <p className="small text-danger">{errors.name.message}</p>
+                    )}
+                </div>
+
                 <div className="form-group">
                     <label htmlFor="name">Name</label>
                     <input
@@ -40,6 +68,7 @@ const DishForm: React.FC<Props> = ({addDish}) => {
                         })}
                         name="name"
                         id="name"
+                        disabled={isLoading}
                         className="form-control"
                     />
                     {errors.name && (
@@ -54,6 +83,7 @@ const DishForm: React.FC<Props> = ({addDish}) => {
                         name="description"
                         id="description"
                         className='form-control'
+                        disabled={isLoading}
                     />
                     {errors.name && (
                         <p className="small text-danger">{errors.description?.message}</p>
@@ -68,6 +98,7 @@ const DishForm: React.FC<Props> = ({addDish}) => {
                         name="image"
                         id="image"
                         className="form-control"
+                        disabled={isLoading}
                     />
                 </div>
 
@@ -77,12 +108,8 @@ const DishForm: React.FC<Props> = ({addDish}) => {
                         type="text"
                         {...register('price', {
                             required: 'Price is required',
-                            validate: {
-                                positive: (v) => v > 0 || "Must be positive",
-                                notTooBig: (v) => v > 1000 && "Too exp",
-                                isNumber: (v) => !(isNaN(Number(v))) || 'Price must be integer'
-                            }
                         })}
+                        disabled={isLoading}
                         name="price"
                         id="price"
                         className="form-control"
@@ -92,7 +119,7 @@ const DishForm: React.FC<Props> = ({addDish}) => {
                     )}
                 </div>
 
-                <button type="submit" className="btn btn-primary mt-2">Create</button>
+                <button type="submit" className="btn btn-primary mt-2" disabled={isLoading}>{isEdit ? 'Edit' : 'Create'}</button>
             </form>
         </div>
     );

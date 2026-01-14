@@ -10,7 +10,6 @@ interface Props {
 const Dishes: React.FC<Props> = ({dishes, onDeleteDish, addDishToCart}) => {
     return (
         <>
-            <h5>Dishes</h5>
             {dishes.map(dish => (
                 <DishItem
                     key={dish.id}

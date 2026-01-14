@@ -1,4 +1,5 @@
 import type {IDish} from "../../../types";
+import {NavLink} from "react-router-dom";
 
 interface Props {
     dish: IDish;
@@ -15,13 +16,14 @@ const DishItem: React.FC<Props> = ({dish, onDeleteDish, addDishToCart}) => {
                 <div className="col-sm-4 rounded-start">
                     <img width="100" height="100" src={picture} alt={dish.name}/>
                 </div>
-                <div className="col-sm-6">
+                <div className="col-sm-4">
                     <h5 className="card-title">{dish.name}</h5>
                     <p className="card-text small">{dish.description}</p>
                     <p className="card-text">{dish.price} KGS</p>
                 </div>
-                <div className="col-sm-2">
-                    <button className="btn btn-danger" onClick={() => onDeleteDish(dish.id)}>X</button>
+                <div className="col-sm-4">
+                    <NavLink className="btn btn-primary d-inline me-2" to={`/dishes/${dish.id}/edit`}>Edit</NavLink>
+                    <button className="btn btn-danger d-inline" onClick={() => onDeleteDish(dish.id)}>X</button>
                 </div>
             </div>
         </div>

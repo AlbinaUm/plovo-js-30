@@ -20,6 +20,12 @@ const ToolBar = () => {
                                 to='/new-dish'
                             >New dish</NavLink>
                         </li>
+
+                        <li>
+                            <NavLink
+                                to='/admin/order-data'
+                            >Orders</NavLink>
+                        </li>
                     </ul>
                 </div>
             </div>
