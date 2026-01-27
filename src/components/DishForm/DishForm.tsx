@@ -1,6 +1,8 @@
 import type {DishMutation, IDish} from "../../types";
 import {useForm} from "react-hook-form";
 import {DISH_CATEGORY} from "../../globalConstants.ts";
+import ButtonSpinner from "../UI/ButtonSpinner/ButtonSpinner.tsx";
+import {useCallback, useEffect} from "react";
 
 interface Props {
     onSubmitDish: (newDish: IDish) => void;
@@ -10,17 +12,27 @@ interface Props {
 }
 
 const DishForm: React.FC<Props> = ({onSubmitDish, isEdit=false, isLoading=false, defaultDish = null}) => {
-    const defaultValues = defaultDish ? defaultDish : {
-        name: '',
-        description: '',
-        category: '',
-        image: '',
-        price: 0,
-    };
+
+    const getDefaultValue = useCallback(() => {
+        return defaultDish ? defaultDish : {
+            name: '',
+            description: '',
+            category: '',
+            image: '',
+            price: 0,
+        };
+    }, [defaultDish]);
+
 
     const {register, handleSubmit, reset, formState: {errors}} = useForm<DishMutation>({
-        defaultValues
+        defaultValues: getDefaultValue()
     });
+
+    useEffect(() => {
+        if (defaultDish) {
+            reset(defaultDish);
+        }
+    }, [defaultDish, reset]);
 
     const onSubmit = (data: DishMutation) => {
         onSubmitDish({
@@ -119,7 +131,10 @@ const DishForm: React.FC<Props> = ({onSubmitDish, isEdit=false, isLoading=false,
                     )}
                 </div>
 
-                <button type="submit" className="btn btn-primary mt-2" disabled={isLoading}>{isEdit ? 'Edit' : 'Create'}</button>
+                <button type="submit" className="btn btn-primary mt-2" disabled={isLoading}>
+                    {isEdit ? 'Edit' : 'Create'}
+                    {isLoading && <ButtonSpinner/>}
+                </button>
             </form>
         </div>
     );

@@ -2,7 +2,6 @@ import DishForm from "../../components/DishForm/DishForm.tsx";
 import type {IDish} from "../../types";
 import axiosApi from "../../axiosApi.ts";
 import {useState} from "react";
-import Spinner from "../../components/UI/Spinner/Spinner.tsx";
 import {toast} from "react-toastify";
 import {useNavigate} from "react-router-dom";
 
@@ -26,7 +25,7 @@ const NewDish = () => {
     return (
         <div className="row mt-2">
             <div className="col-4">
-                {loading ? <Spinner/> : <DishForm onSubmitDish={addDish} isLoading={loading}/>}
+               <DishForm onSubmitDish={addDish} isLoading={loading}/>
             </div>
 
         </div>

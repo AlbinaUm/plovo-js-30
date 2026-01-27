@@ -14,9 +14,10 @@ interface Props {
     cart: CartDish[];
     clearCart: () => void;
     onDeleteDishFromCart: (id: string) => void;
+    updateCart?: (dishes: IDish[]) => void;
 }
 
-const Home: React.FC<Props> = ( {addDishToCart, cart,clearCart , onDeleteDishFromCart}) => {
+const Home: React.FC<Props> = ( {addDishToCart, cart,clearCart ,updateCart, onDeleteDishFromCart}) => {
     const [dishes, setDishes] = useState<IDish[]>([]);
     const [isLoading, setLoading] = useState<boolean>(false);
     const params = useParams();
@@ -29,18 +30,18 @@ const Home: React.FC<Props> = ( {addDishToCart, cart,clearCart , onDeleteDishFro
         try {
             setLoading(true);
             const response = await axiosApi.get<IDishAPI | null>(url);
-            ///products.json
             const dishesObject = response.data;
 
             if (dishesObject !== null) {
                 const dishesArray = reformatObjectToArrayFireBase<DishMutation>(dishesObject);
                 setDishes(dishesArray);
+                if (updateCart) updateCart(dishesArray);
             }
 
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [updateCart]);
 
     const onDeleteDish = async (id: string) => {
         try {

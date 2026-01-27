@@ -1,7 +1,6 @@
 import { ToastContainer} from "react-toastify";
-import ToolBar from "./components/UI/ToolBar/ToolBar.tsx";
 import Home from "./containers/Home/Home.tsx";
-import {useState} from "react";
+import {useCallback, useState} from "react";
 import type {CartDish, IDish} from "./types";
 import NewDish from "./containers/NewDish/NewDish.tsx";
 import {Route, Routes} from "react-router-dom";
@@ -9,6 +8,7 @@ import Checkout from "./containers/Checkout/Checkout.tsx";
 import Order from "./containers/Order/Order.tsx";
 import OrdersData from "./containers/OrdersData/OrdersData.tsx";
 import EditDish from "./containers/EditDish/EditDish.tsx";
+import Layout from "./components/UI/Layout.tsx";
 
 const App = () => {
     const [cart, setCart] = useState<CartDish[]>([]);
@@ -46,52 +46,68 @@ const App = () => {
         }
     };
 
+    const updateCart = useCallback((dishes: IDish[]) => {
+        setCart(prevState => {
+           const newCartDishes: CartDish[] = [];
+
+           prevState.forEach(cartDish => {
+               const existingDish = dishes.find(dish => cartDish.dish.id === dish.id);
+
+               if (!existingDish) {
+                   newCartDishes.push({...cartDish});
+               } else {
+                   newCartDishes.push({
+                       ...cartDish,
+                       dish: existingDish,
+                   });
+               }
+           });
+            return newCartDishes;
+        });
+    }, []);
 
     return (
        <>
            <ToastContainer />
-           <header>
-               <ToolBar/>
-           </header>
-           <main className="container mt-5">
-              <Routes>
-                  <Route path='/dishes/:idCategory' element={(
-                      <Home
-                          cart={cart}
-                          addDishToCart={addDishToCart}
-                          clearCart={clearCart}
-                          onDeleteDishFromCart={onDeleteDishFromCart}
-                      />
-                  )}/>
+           <Layout>
+               <Routes>
+                   <Route path='/dishes/:idCategory' element={(
+                       <Home
+                           cart={cart}
+                           addDishToCart={addDishToCart}
+                           clearCart={clearCart}
+                           onDeleteDishFromCart={onDeleteDishFromCart}
+                           updateCart={updateCart}
+                       />
+                   )}/>
 
-                  <Route path='/' element={(
-                      <Home
-                          cart={cart}
-                          addDishToCart={addDishToCart}
-                          clearCart={clearCart}
-                          onDeleteDishFromCart={onDeleteDishFromCart}
-                      />
-                  )}/>
+                   <Route path='/' element={(
+                       <Home
+                           cart={cart}
+                           addDishToCart={addDishToCart}
+                           clearCart={clearCart}
+                           onDeleteDishFromCart={onDeleteDishFromCart}
+                           updateCart={updateCart}
+                       />
+                   )}/>
 
-                  <Route path='/new-dish' element={(
-                      <NewDish/>
-                  )}/>
+                   <Route path='/new-dish' element={(
+                       <NewDish/>
+                   )}/>
 
-                  <Route path='/dishes/:id/edit' element={(
-                      <EditDish/>
-                  )}/>
+                   <Route path='/dishes/:id/edit' element={(
+                       <EditDish/>
+                   )}/>
 
-                  <Route path='/checkout' element={(<Checkout cartDishes={cart}/>)}>
-                      <Route path='continue' element={(<Order cartDishes={cart} clearCart={clearCart}/>)}/>
-                  </Route>
+                   <Route path='/checkout' element={(<Checkout cartDishes={cart}/>)}>
+                       <Route path='continue' element={(<Order cartDishes={cart} clearCart={clearCart}/>)}/>
+                   </Route>
 
-                  <Route path='/admin/order-data' element={(<OrdersData />)}/>
+                   <Route path='/admin/order-data' element={(<OrdersData />)}/>
 
-
-                  {/*<Route path='/checkout/continue' element={(<p>checkout/continue</p>)}/>*/}
-                  <Route path='*' element={(<h2 className="text-center">Page not found</h2>)}/>
-              </Routes>
-           </main>
+                   <Route path='*' element={(<h2 className="text-center">Page not found</h2>)}/>
+               </Routes>
+           </Layout>
        </>
    )
 };
