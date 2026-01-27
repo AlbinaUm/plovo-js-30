@@ -1,62 +1,36 @@
 import Dishes from "../../components/Dishes/Dishes.tsx";
 import Cart from "../../components/Cart/Cart.tsx";
-import type {DishMutation, IDish, IDishAPI} from "../../types";
 import Spinner from "../../components/UI/Spinner/Spinner.tsx";
 import {NavLink, useParams} from "react-router-dom";
 import {DISH_CATEGORY} from "../../globalConstants.ts";
-import {useCallback, useEffect, useState} from "react";
-import axiosApi from "../../axiosApi.ts";
-import {toast} from "react-toastify";
-import reformatObjectToArrayFireBase from "../../utils/dataApiToArray.ts";
-import {useAppDispatch} from "../../app/hooks.ts";
-import {addDishToCart, clearCart, updateDishesInCart} from "../../app/store/cartSlice.ts";
+import {useEffect} from "react";
+import {useAppDispatch, useAppSelector} from "../../app/hooks.ts";
+import {addDishToCart} from "../../app/store/cartSlice.ts";
+import {
+    deleteDishById,
+    fetchAllDishes,
+    selectAllDishes, selectDeleteDishLoading,
+    selectFetchDishesLoading
+} from "../../app/store/dishesSlice.ts";
 
 const Home = () => {
-    const [dishes, setDishes] = useState<IDish[]>([]);
-    const dispatch = useAppDispatch();
-    const [isLoading, setLoading] = useState<boolean>(false);
     const params = useParams();
-
-    const fetchDishes = useCallback(async (categoryId?: string | undefined) => {
-        let url = '/dishes.json';
-
-        if (categoryId) url += `?orderBy="category"&equalTo="${categoryId}"`;
-
-        try {
-            setLoading(true);
-            const response = await axiosApi.get<IDishAPI | null>(url);
-            const dishesObject = response.data;
-
-            if (dishesObject !== null) {
-                const dishesArray = reformatObjectToArrayFireBase<DishMutation>(dishesObject);
-                setDishes(dishesArray);
-                dispatch(updateDishesInCart(dishesArray));
-            }
-
-        } finally {
-            setLoading(false);
-        }
-    }, [dispatch]);
-
-    const onDeleteDish = async (id: string) => {
-        try {
-            await axiosApi.delete(`/dishes/${id}.json`);
-            toast.success('Dish deleted successfully');
-            await fetchDishes();
-            dispatch(clearCart());
-        } catch (e) {
-            console.log(e);
-        }
-    };
-
+    const dishes = useAppSelector(selectAllDishes);
+    const isFetchLoading = useAppSelector(selectFetchDishesLoading);
+    const isDeleteLoading = useAppSelector(selectDeleteDishLoading);
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
         if (params.idCategory) {
-            void fetchDishes(params.idCategory);
+            dispatch(fetchAllDishes(params.idCategory));
         } else {
-            void fetchDishes();
+            dispatch(fetchAllDishes());
         }
-    }, [fetchDishes, params.idCategory]);
+    }, [dispatch, params.idCategory]);
+
+    const onDeleteDish = (id: string) => {
+      dispatch(deleteDishById(id));
+    };
 
     const getPageTitle = (id: string | undefined) => {
         if (id) {
@@ -79,12 +53,12 @@ const Home = () => {
                             </li>
                         ))}
                     </ul>
-
                 </div>
 
-                <div className="col-5">
-                    {isLoading ? <Spinner/>  :
-                        <>
+                {(isFetchLoading || isDeleteLoading) ? <Spinner/> :
+                    <>
+                        <div className="col-5">
+
                             {dishes.length === 0 && <h5>No dishes yet</h5>}
                             {dishes.length > 0 &&
                                 <>
@@ -96,14 +70,14 @@ const Home = () => {
                                     />
                                 </>
 
-                               }
-                        </>
-                    }
-                </div>
+                            }
+                        </div>
 
-                <div className="col-4">
-                    <Cart/>
-                </div>
+                        <div className="col-4">
+                            <Cart/>
+                        </div>
+                    </>
+                }
             </div>
         </>
     );
