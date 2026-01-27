@@ -1,25 +1,27 @@
-import type {CartDish} from "../../types";
 import Modal from "../UI/Modal/Modal.tsx";
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import CartDishes from "./CartDishes/CartDishes.tsx";
+import {useSelector} from "react-redux";
+import {clearCart, deleteDishFromCart, selectCartDishes} from "../../app/store/cartSlice.ts";
+import {useAppDispatch} from "../../app/hooks.ts";
 
-interface Props {
-    cartDishes: CartDish[];
-    onClearCart: () => void;
-    onDeleteDish: (id: string) => void;
-}
 
-const Cart: React.FC<Props> = ({cartDishes, onClearCart, onDeleteDish}) => {
+const Cart = () => {
     const navigate = useNavigate();
     const [showModal, setShowModal] = useState(false);
-
+    const cartDishes = useSelector(selectCartDishes);
+    const dispatch = useAppDispatch();
 
     let cartInner = (
         <p className="text-center my-4 font-bold">
             No dishes in cart yet
         </p>
     );
+
+    const onDeleteDish = (id: string) => {
+      dispatch(deleteDishFromCart(id));
+    };
 
     if (cartDishes.length > 0) {
         cartInner = (
@@ -31,7 +33,7 @@ const Cart: React.FC<Props> = ({cartDishes, onClearCart, onDeleteDish}) => {
                     className="btn btn-primary mt-2"
                 >Order</button>
                 <button
-                    onClick={onClearCart}
+                    onClick={() => dispatch(clearCart())}
                     type="button"
                     className="btn btn-secondary mt-2"
                 >Clear cart</button>

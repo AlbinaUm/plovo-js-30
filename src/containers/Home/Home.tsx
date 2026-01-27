@@ -1,6 +1,6 @@
 import Dishes from "../../components/Dishes/Dishes.tsx";
 import Cart from "../../components/Cart/Cart.tsx";
-import type {CartDish, DishMutation, IDish, IDishAPI} from "../../types";
+import type {DishMutation, IDish, IDishAPI} from "../../types";
 import Spinner from "../../components/UI/Spinner/Spinner.tsx";
 import {NavLink, useParams} from "react-router-dom";
 import {DISH_CATEGORY} from "../../globalConstants.ts";
@@ -8,17 +8,12 @@ import {useCallback, useEffect, useState} from "react";
 import axiosApi from "../../axiosApi.ts";
 import {toast} from "react-toastify";
 import reformatObjectToArrayFireBase from "../../utils/dataApiToArray.ts";
+import {useAppDispatch} from "../../app/hooks.ts";
+import {addDishToCart, clearCart, updateDishesInCart} from "../../app/store/cartSlice.ts";
 
-interface Props {
-    addDishToCart: (dish: IDish) => void;
-    cart: CartDish[];
-    clearCart: () => void;
-    onDeleteDishFromCart: (id: string) => void;
-    updateCart?: (dishes: IDish[]) => void;
-}
-
-const Home: React.FC<Props> = ( {addDishToCart, cart,clearCart ,updateCart, onDeleteDishFromCart}) => {
+const Home = () => {
     const [dishes, setDishes] = useState<IDish[]>([]);
+    const dispatch = useAppDispatch();
     const [isLoading, setLoading] = useState<boolean>(false);
     const params = useParams();
 
@@ -35,20 +30,20 @@ const Home: React.FC<Props> = ( {addDishToCart, cart,clearCart ,updateCart, onDe
             if (dishesObject !== null) {
                 const dishesArray = reformatObjectToArrayFireBase<DishMutation>(dishesObject);
                 setDishes(dishesArray);
-                if (updateCart) updateCart(dishesArray);
+                dispatch(updateDishesInCart(dishesArray));
             }
 
         } finally {
             setLoading(false);
         }
-    }, [updateCart]);
+    }, [dispatch]);
 
     const onDeleteDish = async (id: string) => {
         try {
             await axiosApi.delete(`/dishes/${id}.json`);
             toast.success('Dish deleted successfully');
             await fetchDishes();
-            clearCart();
+            dispatch(clearCart());
         } catch (e) {
             console.log(e);
         }
@@ -97,7 +92,7 @@ const Home: React.FC<Props> = ( {addDishToCart, cart,clearCart ,updateCart, onDe
                                     <Dishes
                                         dishes={dishes}
                                         onDeleteDish={onDeleteDish}
-                                        addDishToCart={addDishToCart}
+                                        addDishToCart={dish =>  dispatch(addDishToCart(dish)) }
                                     />
                                 </>
 
@@ -107,11 +102,7 @@ const Home: React.FC<Props> = ( {addDishToCart, cart,clearCart ,updateCart, onDe
                 </div>
 
                 <div className="col-4">
-                    <Cart
-                        cartDishes={cart}
-                        onClearCart={clearCart}
-                        onDeleteDish={onDeleteDishFromCart}
-                    />
+                    <Cart/>
                 </div>
             </div>
         </>

@@ -1,17 +1,17 @@
 import React, {useState} from 'react';
-import type {CartDish, Customer, OrderDataMutation} from "../../types";
+import type {Customer, OrderDataMutation} from "../../types";
 import {Navigate, useNavigate} from "react-router-dom";
 import axiosApi from "../../axiosApi.ts";
 import {toast} from "react-toastify";
 import Spinner from "../../components/UI/Spinner/Spinner.tsx";
+import {useAppDispatch, useAppSelector} from "../../app/hooks.ts";
+import {clearCart, selectCartDishes} from "../../app/store/cartSlice.ts";
 
-interface Props {
-    cartDishes: CartDish[];
-    clearCart: () => void
-}
 
-const Order: React.FC<Props> = ({cartDishes, clearCart}) => {
+const Order = () => {
     const navigate = useNavigate();
+    const cartDishes = useAppSelector(selectCartDishes);
+    const dispatch = useAppDispatch();
     const [loading, setLoading] = useState<boolean>(false);
     const [customer, setCustomer] = useState<Customer>({
         name: '',
@@ -37,7 +37,7 @@ const Order: React.FC<Props> = ({cartDishes, clearCart}) => {
             toast.success('Order was send successfully');
             navigate('/');
             setCustomer({name: '', address: '', phone: ''});
-            clearCart();
+            dispatch(clearCart());
         } catch (e) {
             console.error(e);
         } finally {
